@@ -1,14 +1,14 @@
 # --- Compiled Class Files (Java) ---
-*.class
-*.log
-*.ctxt
-*.jar
-*.war
+.class
+.log
+.ctxt
+.jar
+.war
 
 # --- IntelliJ IDEA Specific (IDE Settings) ---
 .idea/
-*.iml
-*.iws
+.iml
+.iws
 out/
 build/
 discord.xml
