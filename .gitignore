@@ -1,0 +1,30 @@
+# --- Compiled Class Files (Java) ---
+*.class
+*.log
+*.ctxt
+*.jar
+*.war
+
+# --- IntelliJ IDEA Specific (IDE Settings) ---
+.idea/
+*.iml
+*.iws
+out/
+build/
+discord.xml
+
+# --- Operating System Files ---
+.DS_Store
+Thumbs.db
+
+# --- PROJECT SPECIFIC: SENSITIVE DATA ---
+# This prevents your "Employee Database" from being public.
+# Even if it's dummy data now, good practice says: NEVER commit the DB.
+*.csv
+*.txt
+TalentCompass_Data.csv
+Company_Data/
+
+# --- Temporary Files ---
+temp/
+*.tmp
