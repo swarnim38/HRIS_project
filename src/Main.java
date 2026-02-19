@@ -6,5 +6,6 @@ public class Main {
         hris.loadData("TalentCompass_data.csv");
         
         hris.listAllEmployees();
+        hris.generateDepartmentReport();
     }
 }
