@@ -61,4 +61,45 @@ public class HRSystem {
         }
 
     }
+
+    public void generateAttritionReport() {
+        System.out.println("\n---Attrition analysis---");
+
+        int totalHires = employeeList.size();
+        int exitedCount = 0;
+        int noticePeriodCount = 0;
+        int activeCount = 0;
+
+        for (Employee emp: employeeList) {
+            String status = emp.getStatus().trim();
+
+            if (status.equalsIgnoreCase("Exited")) {
+                exitedCount++;
+            } else if (status.equalsIgnoreCase("Notice Period")) {
+                noticePeriodCount++;
+            } else if ((status.equalsIgnoreCase("Active")) || (status.equalsIgnoreCase("Probation"))) {
+                activeCount++;
+            }
+        }
+        double turnoverRate = 0.0;
+    if (totalHires > 0) {
+        turnoverRate = ((double) exitedCount / totalHires) * 100;
+    }
+    System.out.printf("Total Historical Hires : %d%n", totalHires);
+        System.out.printf("Current Active Staff   : %d%n", activeCount + noticePeriodCount);
+        System.out.printf("Employees Exited       : %d%n", exitedCount);
+        System.out.printf("Flight Risk Headcount  : %d (Serving Notice Period)%n", noticePeriodCount);
+        System.out.println("--------------------------------------------------");
+        System.out.printf("Overall Turnover Rate  : %.1f%%%n", turnoverRate);
+
+        
+        double controlLimit = 15.0;
+        if (turnoverRate > controlLimit) {
+            System.out.println("⚠️ [WARNING] Turnover exceeds " + controlLimit + "% control limit.");
+            System.out.println("   -> Root Cause Analysis (DMAIC) required for retention process.");
+        } else {
+            System.out.println("✅ [STATUS] Retention process is within acceptable control limits.");
+        }
+
+    }
 }
