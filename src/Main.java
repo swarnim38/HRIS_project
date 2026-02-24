@@ -1,12 +1,21 @@
+import java.util.Scanner;
 import service.HRSystem;
+import ui.Menu;
 
 public class Main {
     public static void main(String[] args) {
-        HRSystem hris = new HRSystem();
+
+        Scanner sharedScanner = new Scanner(System.in);
+
+        HRSystem hris = new HRSystem(sharedScanner);
+
+        System.out.println("Booting up TalentCompass Core System...");
         hris.loadData("startup.csv");
-        
-        hris.listAllEmployees();
-        hris.generateDepartmentReport();
-        hris.generateAttritionReport();
+
+        Menu dashboard = new Menu(hris, sharedScanner);
+
+        dashboard.start();
+
+        sharedScanner.close();
     }
 }
