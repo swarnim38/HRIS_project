@@ -11,7 +11,39 @@
 .iws
 out/
 build/
+target/
+.env
+.env.*
+!.env.example
+node_modules/
+.next/
+*.tsbuildinfo
+talentcompass.local.properties
+application-local.properties
+application-*.local.properties
 discord.xml
+.vscode
+
+# --- Credentials, certificates, and private keys ---
+secrets/
+secret/
+credentials/
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# --- Local databases, exports, and backups ---
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.sql.gz
+database-dumps/
+backups/
+data/
 
 # --- Operating System Files ---
 .DS_Store
@@ -21,6 +53,7 @@ Thumbs.db
 # This prevents your "Employee Database" from being public.
 # Even if it's dummy data now, good practice says: NEVER commit the DB.
 *.csv
+*.csv.lock
 *.txt
 TalentCompass_Data.csv
 Company_Data/

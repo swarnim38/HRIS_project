@@ -1,0 +1,751 @@
+openapi: 3.1.0
+info:
+  title: TalentCompass Local API
+  version: 0.3.0
+  description: Session-backed operations served on the same local origin as the browser application.
+security:
+  - sessionCookie: []
+paths:
+  /health:
+    get:
+      summary: Backend and database readiness
+      security: []
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+  /api/v1/login:
+    post:
+      summary: Sign in with a local organization account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credentials'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/session:
+    get:
+      summary: Get the current account and confirmation token
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+  /api/v1/logout:
+    post:
+      summary: End the session
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/accounts:
+    get:
+      summary: List local accounts (HR Admin)
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+    post:
+      summary: Provision a local account (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountInput'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/accounts/{username}/deactivate:
+    parameters:
+      - name: username
+        in: path
+        required: true
+        schema: {type: string}
+    post:
+      summary: Deactivate an account (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/accounts/{username}/assignment:
+    parameters:
+      - name: username
+        in: path
+        required: true
+        schema: {type: string}
+    put:
+      summary: Change an active local account assignment (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role: {type: string}
+                departmentId: {type: string}
+      responses:
+        '200': {description: Assignment changed}
+        '403': {description: HR Admin and a confirmation token are required}
+  /api/v1/departments:
+    get:
+      summary: List departments in scope
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+    post:
+      summary: Create a department (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentInput'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/employees:
+    get:
+      summary: Search employee profiles
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema: {type: string}
+        - name: department
+          in: query
+          required: false
+          schema: {type: string}
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+    post:
+      summary: Create employee and initial employment event (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeInput'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/employees/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: {type: string}
+    put:
+      summary: Update employee profile and record a dated status or department change (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeInput'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/employees/{id}/history:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: {type: string}
+    get:
+      summary: Get visible employment events
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+    post:
+      summary: Initialize employment history with an observed profile snapshot (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                effectiveOn: {type: string, format: date}
+      responses:
+        '200': {description: Snapshot recorded}
+        '400': {description: Invalid date or existing history}
+        '403': {description: HR Admin and a confirmation token are required}
+  /api/v1/compensation:
+    get:
+      summary: Get effective-dated compensation in scope
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+    post:
+      summary: Record compensation (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayInput'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/promotions:
+    get:
+      summary: Get promotions in scope
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+    post:
+      summary: Record a promotion (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Promotion'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/candidates:
+    get:
+      summary: List candidates in scope
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+  /api/v1/requisitions:
+    get:
+      summary: List scoped requisitions
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+    post:
+      summary: Open a requisition (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Requisition'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/applications:
+    get:
+      summary: List application stage history
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+    post:
+      summary: Link candidate and start application (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Application'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/applications/{id}/stage:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: {type: string}
+    post:
+      summary: Record a permitted stage or complete a hire
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transition'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/dashboard:
+    get:
+      summary: Calculate scoped metrics for an inclusive period
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema: {type: string, format: date}
+        - name: through
+          in: query
+          required: true
+          schema: {type: string, format: date}
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+  /api/v1/headcount:
+    get:
+      summary: Read current department counts
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+  /api/v1/finance:
+    get:
+      summary: List financial periods (Finance and HR Admin)
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+    post:
+      summary: Save period costs and revenue (Finance and HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinanceInput'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/attendance:
+    post:
+      summary: Save scheduled hours and unplanned absence (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Attendance'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/surveys:
+    get:
+      summary: List visible survey versions
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+    post:
+      summary: Create a versioned survey (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Survey'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/survey-responses:
+    post:
+      summary: Enter anonymous survey scores (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Response'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/outcomes:
+    post:
+      summary: Record post-hire outcomes (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Outcome'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/metric-settings:
+    get:
+      summary: Get reporting policy (HR Admin)
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+    put:
+      summary: Save reporting policy (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Settings'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/history-coverage:
+    put:
+      summary: Declare verified dated coverage (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Coverage'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/imports/preview:
+    post:
+      summary: Validate and preview CSV (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportInput'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/imports/commit:
+    post:
+      summary: Commit the exact validated CSV and mapping (HR Admin)
+      security:
+        - sessionCookie: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportInput'
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+        '409': {description: Conflicting record, duplicate identifier or invalid linked record}
+  /api/v1/audit:
+    get:
+      summary: Read tenant audit history (HR Admin)
+      responses:
+        '200': {description: Successful request}
+        '503': {description: Local database or service unavailable}
+        '400': {description: Invalid input}
+        '401': {description: Sign-in required or invalid login}
+        '403': {description: Action outside the account scope or invalid confirmation token}
+components:
+  securitySchemes:
+    sessionCookie: {type: apiKey, in: cookie, name: JSESSIONID}
+    csrfHeader: {type: apiKey, in: header, name: X-CSRF-Token}
+  schemas:
+    Credentials:
+      type: object
+      properties:
+        organization: {type: string}
+        username: {type: string}
+        password: {type: string, format: password}
+    AccountInput:
+      type: object
+      properties:
+        username: {type: string}
+        password: {type: string, format: password}
+        role: {type: string}
+        departmentId: {type: string}
+    DepartmentInput:
+      type: object
+      properties:
+        id: {type: string}
+        name: {type: string}
+    EmployeeInput:
+      type: object
+      properties:
+        id: {type: string}
+        departmentId: {type: string}
+        name: {type: string}
+        job: {type: string}
+        level: {type: string}
+        demographic: {type: string}
+        workLocation: {type: string}
+        employmentType: {type: string}
+        effectiveOn: {type: string, format: date}
+        status: {type: string}
+    PayInput:
+      type: object
+      properties:
+        employeeId: {type: string}
+        effectiveOn: {type: string, format: date}
+        amount: {type: number}
+        currency: {type: string}
+        basis: {type: string}
+        fte: {type: number}
+    Promotion:
+      type: object
+      properties:
+        employeeId: {type: string}
+        effectiveOn: {type: string, format: date}
+        level: {type: string}
+    Requisition:
+      type: object
+      properties:
+        id: {type: string}
+        departmentId: {type: string}
+        job: {type: string}
+        openedOn: {type: string, format: date}
+        responsible: {type: string}
+    Application:
+      type: object
+      properties:
+        id: {type: string}
+        requisitionId: {type: string}
+        candidateId: {type: string}
+        candidateName: {type: string}
+        appliedOn: {type: string, format: date}
+    Transition:
+      type: object
+      properties:
+        stage: {type: string}
+        date: {type: string, format: date}
+        reason: {type: string}
+        employeeId: {type: string}
+        jobLevel: {type: string}
+    FinanceInput:
+      type: object
+      properties:
+        from: {type: string, format: date}
+        through: {type: string, format: date}
+        currency: {type: string}
+        recruitingCost: {type: number}
+        employeeCost: {type: number}
+        revenue: {type: number}
+    Attendance:
+      type: object
+      properties:
+        employeeId: {type: string}
+        date: {type: string, format: date}
+        scheduled: {type: number}
+        absence: {type: number}
+    Survey:
+      type: object
+      properties:
+        id: {type: string}
+        version: {type: integer}
+        departmentId: {type: string}
+        kind: {type: string}
+        question: {type: string}
+    Response:
+      type: object
+      properties:
+        id: {type: string}
+        version: {type: integer}
+        date: {type: string, format: date}
+        scores: {type: array, items: {type: integer}}
+    Outcome:
+      type: object
+      properties:
+        applicationId: {type: string}
+        measuredOn: {type: string, format: date}
+        performance: {type: number}
+        managerScore: {type: number}
+        retained: {type: boolean}
+    Settings:
+      type: object
+      properties:
+        surveyMinimum: {type: integer}
+        payMinimum: {type: integer}
+        tenureYears: {type: integer}
+        performanceWeight: {type: integer}
+        managerWeight: {type: integer}
+        retentionWeight: {type: integer}
+    Coverage:
+      type: object
+      properties:
+        departmentId: {type: string}
+        from: {type: string, format: date}
+        through: {type: string, format: date}
+    ImportInput:
+      type: object
+      properties:
+        kind: {type: string}
+        csv: {type: string}
+        departmentId: {type: string}
+        currency: {type: string}
+        fte: {type: number}
+        snapshot: {type: string, format: date}
+        expectedHash: {type: string}
