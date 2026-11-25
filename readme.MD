@@ -1,107 +1,121 @@
 # TalentCompass HRIS
 
-TalentCompass is a browser app for managing employees, hiring, pay history, and HR reports. **HRIS** stands for human resources information system. The demo runs on your Windows computer and uses fictional records.
+TalentCompass is a local, browser-based Human Resource Information System (HRIS). It helps HR teams manage employee records, recruitment, compensation history, and workforce reports. The browser app runs on your own computer, and its demo uses fictional data.
 
-[Set up the demo](#set-up-the-demo) · [Sign in](#sign-in) · [Try the college demo](#try-the-college-demo) · [Troubleshooting](#troubleshooting)
+This project also includes an optional terminal menu for older CSV-based reports. Most users should start with the browser app described below.
 
-## Set up the demo
+## What the app can do
 
-**Already set up?** Open [TalentCompass](http://127.0.0.1:8080/). If the page is unavailable, follow [Start the app again](#start-the-app-again).
+- **Employee directory:** Search employee records and review job, department, and employment history.
+- **Recruitment:** Track job openings, applications, interviews, offers, acceptances, and hires.
+- **Compensation:** Review dated pay records and promotion history, depending on your access.
+- **Workforce reports:** Review staffing, hiring, attendance, pay comparisons, and other measures when the required information is available.
+- **CSV imports:** Preview employee or hiring records, correct row errors, and then import valid data.
+- **User access:** HR Admins, managers, and Finance users see the actions allowed for their role and organization.
 
-### Before you start
+The demo runs on this computer and stores its records in a local MySQL database managed by Docker. The included demo accounts and records are fictional.
 
-Install these tools and open Docker Desktop in Linux container mode.
+## Start the browser app on Windows
 
-| Tool | What it does |
-| --- | --- |
-| [Java Development Kit (JDK) 25 or newer](https://adoptium.net/temurin/releases/) | Builds and runs the Java application. |
-| [Maven](https://maven.apache.org/install.html) | Packages the Java application. Setup can also use a copy in the local Maven wrapper cache. |
-| [Node.js 20.9 or newer](https://nodejs.org/en/download) and [pnpm](https://pnpm.io/installation) | Build the pages you see in the browser. |
-| [Docker Desktop for Windows](https://docs.docker.com/desktop/setup/install/windows-install/) | Runs MySQL, the database that saves your records. |
+You do not need VS Code. Use **Windows PowerShell** or **Windows Terminal** and keep its window open while TalentCompass is running.
 
-### First run
+### What you need
 
-1. Open the project folder in VS Code and start a **PowerShell** terminal there. You should be in the folder containing [Start-TalentCompass.ps1](Start-TalentCompass.ps1).
-2. Run the setup command.
+- [Java Development Kit (JDK) 25 or newer](https://adoptium.net/temurin/releases/)
+- [Docker Desktop for Windows](https://docs.docker.com/desktop/setup/install/windows-install/), open before starting the app
+- [Node.js 20.9 or newer](https://nodejs.org/en/download) and [pnpm](https://pnpm.io/installation)
+- [Maven](https://maven.apache.org/install.html), or a Maven copy already available in the local Maven wrapper cache
 
-   ~~~powershell
-   .\Start-TalentCompass.ps1 -Setup -Demo
-   ~~~
+### First-time demo setup
 
-3. Wait for **TalentCompass backend ready**, then open [TalentCompass](http://127.0.0.1:8080/). Keep the terminal open while you use the app.
+1. Open Docker Desktop and wait for it to finish starting.
+2. In File Explorer, open the `HRIS_project` folder—the folder containing `Start-TalentCompass.ps1`.
+3. Click the File Explorer address bar, type `powershell`, and press **Enter**. A PowerShell window opens in the project folder.
+4. Build the app and start its demo database and server:
 
-Setup builds the app and generates passwords in `talentcompass.local.properties` if that file is missing. The demo uses a separate database in the Docker project `talentcompass-demo` on port 3308. Setup uses any existing local configuration, so review it before starting a demo on a customized installation.
+   ```powershell
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Start-TalentCompass.ps1 -Setup -Demo
+   ```
 
-## Sign in
+   This command runs the setup script with a temporary PowerShell policy for that process only. It does not change your computer's saved execution policy. First-time setup installs the browser dependencies, builds the browser pages and Java app, and creates private demo passwords if needed.
 
-Enter **DEMO-A** as the organization and **a-admin** as the username. Open `talentcompass.local.properties` in the project folder and copy only the value after `HRIS_DEMO_PASSWORD=` into the password box. The `HRIS_DB_PASSWORD` value is for MySQL. Keep this file private.
+5. Wait until the terminal says **TalentCompass backend ready**, then open [TalentCompass](http://127.0.0.1:8080/) in your browser. Leave the terminal open while you use the app.
 
-| Organization | Username | What you can do |
+### Sign in to the demo
+
+Use **DEMO-A** for Organization and **a-admin** for Username. To get the password, open `talentcompass.local.properties` in the project folder and copy the value after `HRIS_DEMO_PASSWORD=`. Do not share or upload this file. The database password in that file is different; it is not the sign-in password.
+
+| Organization | Username | Access overview |
 | --- | --- | --- |
-| `DEMO-A` | `a-admin` | Manage employees, hiring, compensation, imports, and accounts. |
-| `DEMO-A` | `a-manager` | View Engineering records and update permitted hiring stages for that department. |
-| `DEMO-A` | `a-finance` | View financial records and enter costs and revenue for reporting. |
-| `DEMO-B` | `b-admin` | Manage a second organization with its own records. |
+| `DEMO-A` | `a-admin` | Administers the demo organization and its HR records. |
+| `DEMO-A` | `a-manager` | Views Engineering records and records permitted recruitment updates for that department. |
+| `DEMO-A` | `a-finance` | Views financial records and enters permitted financial inputs. |
+| `DEMO-B` | `b-admin` | Administers a separate demo organization. |
 
-All four accounts use the same generated demo password. Both organizations have an employee numbered `E1`, and each organization has its own record.
+All demo accounts use the same generated demo password. Each organization has its own records, even when employee numbers are the same.
+
+## Use the app
+
+After signing in, choose a section from the app's menu. The sections available depend on your role.
+
+| Section | Purpose |
+| --- | --- |
+| **Overview** | Choose a date range and review workforce and hiring measures. |
+| **Employees** | Find a person and review their profile and work history. |
+| **Recruitment** | Manage openings, applications, and hiring stages. |
+| **Compensation** | Review compensation and promotion records. |
+| **Metric inputs** | Enter information used by reports, such as recruiting costs and scheduled hours. |
+| **CSV import** | Preview a spreadsheet export, correct errors, and confirm valid records. |
+| **Administration** | Manage accounts and review the history of recorded actions. |
+
+Reports include both dates in the selected range. **Missing inputs** means the report needs more information. **Zero denominator** means there was nothing to divide by. **Suppressed** means the result is hidden to protect privacy. See [report definitions](#browser-report-inputs) for details.
+
+### Practice with the college demo
+
+On a fresh demo database, these steps show how recording a hire affects the employee list and reports:
+
+1. Sign in as `DEMO-A` / `a-admin`. In **Overview**, select **January 1–31, 2025**. The starting demo shows 2 employees, 0% turnover, 12.5% absenteeism, and engagement of 4 out of 5.
+2. In **Recruitment**, open an Engineering job dated **January 2, 2025** and assign it to `a-manager`. Link a candidate who applied **January 4**.
+3. Record an interview on **January 5**, an offer on **January 8**, acceptance on **January 10**, and a hire on **January 21**. Give the new hire a unique employee number.
+4. Return to **Overview**, use the same date range, and choose **Update reports**. The demo should show 3 employees, 8 days to fill, 6 days to hire, and USD 1,200 per hire.
+5. Find the new employee under **Employees** and review the recorded changes under **Administration → Audit history**.
+
+### Import a CSV file
+
+A CSV is a plain-text table that most spreadsheet programs can save or export. Use fictional records for the demo.
+
+1. Sign in as an HR Admin and open **CSV import**.
+2. Select the format that matches your file and choose the file to upload.
+3. Select **Preview CSV**. Review the row errors, valid row count, and pay totals.
+4. Correct the preview and check it again. Your original file on your computer is not changed.
+5. Select **Commit validated records** to import the valid records.
+
+See [CSV mapping](#browser-csv-mapping) for the supported columns and values.
 
 ## Start the app again
 
-Open Docker Desktop, then run this command in PowerShell from the project folder.
+After first-time setup, open Docker Desktop. In File Explorer, open the `HRIS_project` folder, click the address bar, type `powershell`, and press **Enter**. Then run:
 
-~~~powershell
+```powershell
 java -jar .\target\talentcompass-0.2.0.jar
-~~~
+```
 
-You can also open [Main.java](src/Main.java) in VS Code and select **Run Java**. Open the repository as a Maven project and use the project folder as the working directory. Both options use the files created during first-time setup.
-
-To stop the app, press **Ctrl+C** in the terminal where you launched it, or use **Stop** in VS Code. To stop MySQL too, use **Stop** on the demo's MySQL container in Docker Desktop. Stopping the container keeps its data.
-
-## Find your way around
-
-| Screen | What it does |
-| --- | --- |
-| **Overview** | Pick a date range and review staffing, hiring, and other measures available to your role. |
-| **Employees** | Search for a person, view their profile, and check their job or department history. |
-| **Recruitment** | Open a job, link a candidate, and record interviews, offers, acceptances, and hires. |
-| **Compensation** | Review dated pay records and, where your role allows it, promotion history. |
-| **Metric inputs** | Enter information that reports use, such as recruiting costs, scheduled hours, and anonymous survey scores. |
-| **CSV import** | Preview records from a spreadsheet export, correct errors, and confirm the import. |
-| **Administration** | Manage accounts and see who performed recorded actions and when. |
-
-The menu reflects your account's permissions. Reports include both dates you select. **Missing inputs** means the report needs more information. **Zero denominator** means there was nothing to divide by. **Suppressed** means the result is hidden to protect privacy. A displayed zero means the recorded data produced a result of zero. See [report definitions](#browser-report-inputs) for the calculations.
-
-## Try the college demo
-
-On a fresh demo database, these steps show how a hire changes the employee list and reports.
-
-1. Sign in as `DEMO-A` / `a-admin`. In **Overview**, select **January 1–31, 2025**. Expect **2 employees**, **0% turnover**, **12.5% absenteeism**, and engagement of **4 out of 5**.
-2. In **Recruitment**, open an Engineering job dated **January 2, 2025** and assign it to `a-manager`. Link a candidate who applied **January 4**.
-3. Record the interview on **January 5**, offer on **January 8**, acceptance on **January 10**, and hire on **January 21**. Give the hire a new employee number.
-4. Return to **Overview** for the same January dates and choose **Update reports**. Expect **3 employees**, **8 days to fill**, **6 days to hire**, and **USD 1,200 per hire**. Find the new hire under **Employees** and review the stage changes under **Administration → Audit history**.
-5. Sign out and try `a-manager` and `a-finance` to see how access varies. Sign in to `DEMO-B` as `b-admin` and search for `E1` to see the second organization's employee record.
-
-### Import employee or hiring records
-
-Use fictional records for the demo. A CSV is a plain-text table that a spreadsheet can export.
-
-1. As an HR Admin, open **CSV import** and select the format that matches your file.
-2. Upload the file and choose **Preview CSV**. Review any row errors, the valid row count, and pay totals.
-3. Correct the copy in the browser and preview it again. Your original file stays on disk.
-4. Choose **Commit validated records**. Repeating an identical import returns the original receipt.
-
-See [CSV mapping](#browser-csv-mapping) for the column order and required values.
+When the terminal says **TalentCompass backend ready**, open [http://127.0.0.1:8080/](http://127.0.0.1:8080/). Keep the terminal window open until you finish. Press **Ctrl+C** in that window to stop the app. The demo database keeps its data when the app or MySQL container is stopped.
 
 ## Troubleshooting
 
 | What you see | What to do |
 | --- | --- |
-| **The backend port is in use** | Check [health](http://127.0.0.1:8080/health). If TalentCompass reports `UP`, use the [running app](http://127.0.0.1:8080/). If another app owns port 8080, set `HRIS_PORT` to a free port before starting and use the address printed in the terminal. |
-| **PowerShell says running scripts is disabled** | If setup is complete, use the Java command under [Start the app again](#start-the-app-again). For first-time setup, check the applicable policy with `Get-ExecutionPolicy -List`. On a managed computer, ask the administrator how to run a trusted local script. [Microsoft's PowerShell policy guide](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies) |
-| **The browser can't connect** | Check the terminal for **TalentCompass backend ready**. If startup reports a database error, open Docker Desktop and try again. Use the address printed when the app starts. |
-| **Invalid organization, username or password** | Check all three values, even if the page highlights Organization. Copy the value after `HRIS_DEMO_PASSWORD=`. Changing that setting after the accounts are created does not reset their passwords. |
-| **MySQL rejects the password** | Use the database password that was set when the Docker volume was created. An existing volume keeps its original credentials. |
-| **The browser files or JAR are missing** | Complete [first-time setup](#first-run). If Maven is missing, install it and add its `bin` folder to `PATH`. |
+| The browser cannot connect | Make sure Docker Desktop is running, start the app from PowerShell, and wait for **TalentCompass backend ready**. Open the address printed in the terminal. |
+| The terminal says the backend port is in use | Another app instance may already be running. Check [the health page](http://127.0.0.1:8080/health). If it reports `UP`, open the app instead of starting a second copy. Otherwise, close the program using port 8080 or configure a free `HRIS_PORT`. |
+| PowerShell says scripts are disabled | Use the first-time setup command above, which applies a temporary policy to the setup process only. On a managed computer, follow your administrator's instructions. See [Microsoft's PowerShell execution policy guide](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies). |
+| Sign-in says the organization, username, or password is invalid | Check all three fields, even if Organization is highlighted. Use the value after `HRIS_DEMO_PASSWORD=` in `talentcompass.local.properties`. |
+| MySQL reports a password error | An existing Docker database keeps the password it was created with. Use that database's original password; changing the local properties file does not change an existing database account. |
+| A setup file is missing | Run the first-time demo setup command from the project folder. If Maven is missing, install it and add its `bin` folder to `PATH`. |
+
+## Optional terminal menu
+
+The project also keeps a legacy, CSV-based terminal menu for local reports. It is separate from the browser app and does not use the browser app's MySQL records. To learn about its CSV files and commands, see [the legacy CSV CLI section](#optional-legacy-csv-cli).
 
 ## Reference
 
