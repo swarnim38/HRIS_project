@@ -24,6 +24,7 @@ import java.util.UUID;
 @Service
 public class LocalIdentity implements ApplicationRunner {
     private static final SecureRandom RANDOM = new SecureRandom();
+    private final java.util.concurrent.Semaphore passwordChecks = new java.util.concurrent.Semaphore(2);
     private final JdbcClient db;
     private final Environment environment;
 
@@ -67,8 +68,20 @@ public class LocalIdentity implements ApplicationRunner {
         if (credentials == null || credentials.password() == null || credentials.password().length() > 256) {
             throw new LoginRequired("Invalid organization, username or password");
         }
-        var account = find(credentials.organization(), credentials.username());
-        if (account == null || !matches(credentials.password(), account.hash())) {
+        if (!passwordChecks.tryAcquire()) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.TOO_MANY_REQUESTS);
+        }
+        Account account;
+        boolean valid;
+        try {
+            account = find(credentials.organization(), credentials.username());
+            valid = account == null
+                    ? MessageDigest.isEqual(derive(credentials.password(), new byte[24]), new byte[32])
+                    : matches(credentials.password(), account.hash());
+        } finally {
+            passwordChecks.release();
+        }
+        if (account == null || !valid) {
             throw new LoginRequired("Invalid organization, username or password");
         }
         HttpSession old = request.getSession(false);
